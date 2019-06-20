@@ -256,12 +256,12 @@ export default class MoviesDAO {
 
     // TODO Ticket: Paging
     // Use the cursor to only return the movies that belong on the current page
-    const displayCursor = cursor.limit(moviesPerPage)
+    const displayCursor = cursor.limit(moviesPerPage).skip(moviesPerPage * page )
+
 
     try {
       const moviesList = await displayCursor.toArray()
       const totalNumMovies = page === 0 ? await movies.countDocuments(query) : 0
-
       return { moviesList, totalNumMovies }
     } catch (e) {
       console.error(
