@@ -188,12 +188,13 @@ export default class MoviesDAO {
     to complete this task, but you might have to do something about `const`.
     */
 
-    const queryPipeline = [
+    var queryPipeline = [
       matchStage,
       sortStage,
       // TODO Ticket: Faceted Search
       // Add the stages to queryPipeline in the correct order.
     ]
+    queryPipeline.push(skipStage,limitStage,facetStage);
 
     try {
       const results = await (await movies.aggregate(queryPipeline)).next()
@@ -294,8 +295,31 @@ export default class MoviesDAO {
         {
           $match: {
             _id: ObjectId(id),
-          },
+          }
         },
+        {
+          $lookup: {
+            from: 'comments', 
+            let: {
+              id: '$_id'
+            }, 
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: [
+                      '$movie_id', '$$id'
+                    ]
+                  }
+                }
+              },
+              {
+                $sort:{ date : -1}
+              }
+            ], 
+            as: 'comments'
+          }
+        }
       ]
       return await movies.aggregate(pipeline).next()
     } catch (e) {
