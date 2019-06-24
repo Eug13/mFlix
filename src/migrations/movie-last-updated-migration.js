@@ -17,7 +17,7 @@ const MongoError = require("mongodb").MongoError
 ;(async () => {
   try {
     // ensure you update your host information below!
-    const host = "mongodb://<your atlas connection uri from your .env file"
+    const host = "mongodb+srv://Evgeniy:Eug_13diver@cluster0-gewps.mongodb.net/test?retryWrites=true&w=majority"
     const client = await MongoClient.connect(
       host,
       { useNewUrlParser: true },
@@ -29,12 +29,14 @@ const MongoError = require("mongodb").MongoError
     // check that its type is a string
     // a projection is not required, but may help reduce the amount of data sent
     // over the wire!
-    const predicate = { somefield: { $someOperator: true } }
+    const predicate = { lastupdated: { $exists: true, $type: "string"} }
     const projection = {}
     const cursor = await mflix
       .collection("movies")
       .find(predicate, projection)
       .toArray()
+  
+  console.log('cursor ===')
     const moviesToMigrate = cursor.map(({ _id, lastupdated }) => ({
       updateOne: {
         filter: { _id: ObjectId(_id) },
@@ -48,7 +50,9 @@ const MongoError = require("mongodb").MongoError
       `Found ${moviesToMigrate.length} documents to update`,
     )
     // TODO: Complete the BulkWrite statement below
-    const { modifiedCount } = await "some bulk operation"
+    const { modifiedCount } = await mflix
+    .collection("movies")
+    .bulkWrite(moviesToMigrate)
 
     console.log("\x1b[32m", `${modifiedCount} documents updated`)
     client.close()
