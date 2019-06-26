@@ -28,12 +28,17 @@ export default class MoviesDAO {
   static async getConfiguration() {
     const roleInfo = await mflix.command({ connectionStatus: 1 })
     const authInfo = roleInfo.authInfo.authenticatedUserRoles[0]
-    const { poolSize, wtimeout } = movies.s.db.serverConfig.s.options
+  
+    // const { poolSize, wtimeout } = movies.s.db.serverConfig.s.options
+
+    console.log('movies.s.db.serverConfig.s.options =',movies.s.db.serverConfig.s.options)
     let response = {
-      poolSize,
-      wtimeout,
+      // poolSize,
+      // wtimeout,
       authInfo,
+      connectTimeoutMS: 100, retryWrites: true, useNewUrlParser: true,
     }
+    console.log('response =', response)
     return response
   }
 
@@ -333,7 +338,8 @@ export default class MoviesDAO {
       // TODO Ticket: Error Handling
       // Catch the InvalidId error by string matching, and then handle it.
       console.error(`Something went wrong in getMovieByID: ${e}`)
-      throw e
+      // throw e
+ return null
     }
   }
 }
